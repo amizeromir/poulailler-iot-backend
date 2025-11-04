@@ -1,8 +1,12 @@
-const express = require("express");
-const cors = require("cors");
-const sensorRoutes = require("./routes/sensorRoutes");
+import express from "express";
+import cors from "cors";
+import sensorRoutes from "./routes/sensorRoutes.js";
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:5173", 
+  credentials: true
+}));
 
 app.use(cors());
 app.use(express.json());
@@ -13,4 +17,4 @@ app.get("/", (req, res) => {
   res.send("🐔 API Poulailler IoT - en ligne !");
 });
 
-module.exports = app;
+export default app;

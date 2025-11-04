@@ -1,12 +1,13 @@
 {
   "name": "poulailler-iot-backend",
+  "type": "module",
   "version": "1.0.0",
   "description": "Projet_Fin_Etudes:\"Backend API pour système de surveillance de poulailler intelligent\"",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-     "dev": "nodemon server.js"
+    "dev": "nodemon server.js"
   },
   "license": "ISC",
   "dependencies": {

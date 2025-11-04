@@ -1,5 +1,5 @@
-const express = require("express");
-const SensorData = require("../models/sensorData");
+import express from "express";
+import SensorData from "../models/sensorData.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -7,4 +7,4 @@ router.get("/", async (req, res) => {
   res.json(data);
 });
 
-module.exports = router;
+export default router;

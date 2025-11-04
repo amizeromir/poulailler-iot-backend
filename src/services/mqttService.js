@@ -1,8 +1,8 @@
 // src/services/mqttService.js
-const mqtt = require("mqtt");
-const SensorData = require("../models/sensorData");
+import mqtt from "mqtt";
+import SensorData from "../models/sensorData.js";
 
-function connectMQTT() {
+export function connectMQTT() {
   const options = {
     host: process.env.MQTT_HOST,
     port: Number(process.env.MQTT_PORT),
@@ -50,5 +50,3 @@ function connectMQTT() {
     console.error("🚨 Erreur MQTT:", err.message);
   });
 }
-
-module.exports = { connectMQTT };
