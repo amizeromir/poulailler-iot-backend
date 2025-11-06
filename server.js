@@ -2,49 +2,57 @@
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
+import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import sensorRoutes from "./routes/sensorRoutes.js";
-import { connectMQTT } from "./src/services/mqttService.js";
+import { connectMQTT } from "./src/services/mqttService.js"; // ✅ Corrigé : chemin direct
+import usersRoutes from "./routes/users.js";
 
 dotenv.config();
 const app = express();
 
-// ✅ Middleware CORS dynamique compatible GitHub Codespaces
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (origin && (origin.includes("localhost") || origin.endsWith(".app.github.dev"))) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200); // Réponse immédiate pour la pré-requête
-  }
-
-  next();
-});
+/* ----------------------- 🔧 CORS dynamique universel ----------------------- */
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (
+        !origin || // Postman ou script local
+        origin.includes("localhost") || // Dev local
+        origin.includes("127.0.0.1") ||
+        origin.endsWith(".app.github.dev") || // GitHub Codespaces
+        origin.includes("vercel.app") || // futur déploiement possible
+        origin.includes("netlify.app")
+      ) {
+        callback(null, true);
+      } else {
+        console.warn("🚫 Requête CORS bloquée depuis :", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
-// ✅ Route de santé /api/health (pour test)
+/* ----------------------- ✅ Route de test / santé ----------------------- */
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     message: "✅ Backend poulailler-iot fonctionne avec CORS dynamique",
-    origin: req.headers.origin,
-    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+    origin: req.headers.origin || "n/a",
+    mongo:
+      mongoose.connection.readyState === 1
+        ? "connected"
+        : "disconnected",
   });
 });
 
-// ✅ Routes principales
+/* ----------------------- 🔌 Routes principales ----------------------- */
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
 
-// ✅ Démarrage du serveur après connexion MongoDB
+/* ----------------------- ⚙️ Connexion MongoDB + lancement serveur ----------------------- */
 const PORT = process.env.PORT || 5000;
 
 mongoose
@@ -52,15 +60,18 @@ mongoose
   .then(() => {
     console.log("✅ Connecté à MongoDB Atlas");
 
+    // Lancer MQTT
     try {
       connectMQTT();
-      console.log("✅ Connexion MQTT initialisée");
+      console.log("📡 Service MQTT connecté");
     } catch (err) {
-      console.error("❌ Erreur MQTT :", err);
+      console.error("❌ Erreur lors du démarrage MQTT :", err);
     }
 
+    // Lancer serveur
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+      console.log(`🚀 Serveur backend prêt sur le port ${PORT}`);
     });
   })
-  .catch((err) => console.error("❌ Erreur MongoDB:", err));
+  .catch((err) => console.error("❌ Erreur connexion MongoDB :", err));
+  app.use("/api/users", usersRoutes);
