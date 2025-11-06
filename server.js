@@ -1,35 +1,52 @@
-import authRoutes from "./routes/auth.js";
+// server.js
+import express from "express";
 import dotenv from "dotenv";
-import app from "./src/app.js";
 import mongoose from "mongoose";
+import authRoutes from "./routes/auth.js";
+import sensorRoutes from "./routes/sensorRoutes.js";
 import { connectMQTT } from "./src/services/mqttService.js";
-import cors from "cors";
 
 dotenv.config();
+const app = express();
 
-// 🧩 Configuration CORS (autoriser le frontend local + Codespaces)
-app.use(cors({
-  origin: ["http://localhost:5173", "https://*.github.dev"],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"]
-}));
+// ✅ Middleware CORS dynamique compatible GitHub Codespaces
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-// ✅ Route de test toujours accessible
+  if (origin && (origin.includes("localhost") || origin.endsWith(".app.github.dev"))) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // Réponse immédiate pour la pré-requête
+  }
+
+  next();
+});
+
+app.use(express.json());
+
+// ✅ Route de santé /api/health (pour test)
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
+  res.json({
     status: "ok",
-    message: "✅ Backend poulailler-iot fonctionne parfaitement",
-    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    timestamp: new Date()
+    message: "✅ Backend poulailler-iot fonctionne avec CORS dynamique",
+    origin: req.headers.origin,
+    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
   });
 });
 
+// ✅ Routes principales
+app.use("/api/auth", authRoutes);
+app.use("/api/sensors", sensorRoutes);
+
+// ✅ Démarrage du serveur après connexion MongoDB
 const PORT = process.env.PORT || 5000;
 
-// 📦 Routes principales
-app.use("/api/auth", authRoutes);
-
-// 🔌 Connexion MongoDB
 mongoose
   .connect(process.env.MONGO_URI, { dbName: "poulailler" })
   .then(() => {
@@ -39,10 +56,11 @@ mongoose
       connectMQTT();
       console.log("✅ Connexion MQTT initialisée");
     } catch (err) {
-      console.error("❌ Erreur lors de la connexion MQTT :", err);
+      console.error("❌ Erreur MQTT :", err);
     }
 
-    // 🚀 Démarrage du serveur (important : ici seulement)
-    app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Serveur démarré sur le port ${PORT}`));
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+    });
   })
-  .catch((err) => console.error("❌ Erreur connexion MongoDB:", err));
+  .catch((err) => console.error("❌ Erreur MongoDB:", err));

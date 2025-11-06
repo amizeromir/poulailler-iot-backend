@@ -1,5 +1,5 @@
-// mqttSimulator.js
-const mqtt = require("mqtt");
+// ✅ mqttSimulator.js — compatible ES Modules
+import mqtt from "mqtt";
 
 // 🔧 Connexion à ton broker EMQX Cloud
 const client = mqtt.connect({
@@ -7,7 +7,7 @@ const client = mqtt.connect({
   port: 8883,
   protocol: "mqtts",
   username: "amiz",
-  password: "IoT070679"
+  password: "IoT070679",
 });
 
 client.on("connect", () => {
@@ -28,7 +28,7 @@ client.on("connect", () => {
     client.publish(`poulailler/${deviceId}/ammonia`, ammonia.toString());
     client.publish(`poulailler/${deviceId}/luminosity`, luminosity.toString());
 
-    console.log(`📩 Data envoyée : ${temperature}°C, ${humidity}%, NH3=${ammonia}ppm, Lumi=${luminosity}`);
+    console.log(`📩 Données envoyées : 🌡️ ${temperature}°C | 💧 ${humidity}% | 🧪 NH3=${ammonia}ppm | 💡 Lumi=${luminosity}`);
   }, 5000);
 });
 

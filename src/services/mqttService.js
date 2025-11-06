@@ -1,6 +1,7 @@
 // src/services/mqttService.js
 import mqtt from "mqtt";
-import SensorData from "../models/sensorData.js";
+import SensorData from "../../models/sensorData.js";
+
 
 export function connectMQTT() {
   const options = {
