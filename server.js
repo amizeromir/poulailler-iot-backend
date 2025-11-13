@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import sensorRoutes from "./routes/sensorRoutes.js";
-import { connectMQTT } from "./src/services/mqttService.js"; // ✅ Corrigé : chemin direct
+import { connectMQTT } from "./src/services/mqttService.js"; //  chemin direct
 import usersRoutes from "./routes/users.js";
 
 dotenv.config();

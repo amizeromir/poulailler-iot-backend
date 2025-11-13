@@ -1,4 +1,4 @@
-// ✅ mqttSimulator.js — compatible ES Modules
+//  mqttSimulator.js 
 import mqtt from "mqtt";
 
 // 🔧 Connexion à ton broker EMQX Cloud

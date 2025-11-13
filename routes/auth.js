@@ -1,4 +1,4 @@
-// routes/auth.js - VERSION CORRIGÉE
+// routes/auth.js 
 import express from "express";
 import User from "../models/User.js";
 
