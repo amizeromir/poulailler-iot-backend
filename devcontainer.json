@@ -1,0 +1,25 @@
+// .devcontainer/devcontainer.json (Dans poulailler-iot-backend)
+{
+  "name": "IoT Multi-Repo Environment",
+  "image": "mcr.microsoft.com/devcontainers/universal:latest",
+
+  // Ce script s'exécute à la création du Codespace et installe les dépendances dans les dossiers clonés
+  "onCreateCommand": [
+    // 1. Installer les dépendances du Backend (dépôt principal)
+    "npm install",
+    
+    // 2. Installer les dépendances du Frontend
+    "cd ../poulailler-iot-frontend && npm install",
+
+    // 3. Installer les dépendances du Mobile
+    "cd ../poulailler-iot-mobile && npm install"
+  ],
+
+  // Définition des ports pour un accès facile
+  "portsAttributes": {
+    "5000": { "label": "API Backend (Node.js)", "onAutoForward": "notify" },
+    "8100": { "label": "Ionic/Frontend App", "onAutoForward": "openBrowser" }
+  },
+
+  "forwardPorts": [5000, 8100]
+}
