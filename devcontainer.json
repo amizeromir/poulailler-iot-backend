@@ -1,47 +1,28 @@
+// NOUVELLE VERSION CORRIGÉE du .devcontainer/devcontainer.json
 {
-  "name": "Environnement IoT Multi-Repo",
-  // Image de base universelle recommandée
-  "image": "mcr.microsoft.com/devcontainers/universal:latest", 
+  "name": "Environnement IoT Multi-Repo (Node.js)",
+  // Utilisation d'une image de base Node.js plus stable
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20", 
 
-  // Définit explicitement l'utilisateur 'codespace' pour résoudre les problèmes de permission
-  "remoteUser": "codespace", 
+  // Utilisation de l'utilisateur par défaut 'node' de cette image
+  "remoteUser": "node", 
   
-  // Commandes exécutées automatiquement lors de la création du Codespace
+  // Exécuter les commandes en tant qu'utilisateur 'node' (pour les dépendances)
   "onCreateCommand": [
-    // 1. Installer les dépendances du Backend (dépôt principal)
+    // La commande 'npm install' est souvent plus stable sans 'sudo'
     "npm install",
     
-    // 2. Installer les dépendances du Frontend
+    // Dépendances Frontend
     "cd ../poulailler-iot-frontend && npm install",
 
-    // 3. Installer les dépendances du Mobile
+    // Dépendances Mobile
     "cd ../poulailler-iot-mobile && npm install"
   ],
 
-  // Configuration des ports
+  // ... (Ports et extensions restent les mêmes) ...
   "portsAttributes": {
-    "5000": { 
-      "label": "API Backend (Node.js)", 
-      "onAutoForward": "notify" 
-    },
-    "8100": { 
-      "label": "Ionic/Frontend App", 
-      "onAutoForward": "openBrowser" 
-    }
+    "5000": { "label": "API Backend (Node.js)", "onAutoForward": "notify" },
+    "8100": { "label": "Ionic/Frontend App", "onAutoForward": "openBrowser" }
   },
-
-  "forwardPorts": [5000, 8100],
-
-  // Extensions VS Code recommandées
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "ms-vscode.node-js-for-typescript",
-        "ms-azuretools.vscode-docker",
-        "GitHub.vscode-github-actions"
-      ]
-    }
-  }
+  "forwardPorts": [5000, 8100]
 }
