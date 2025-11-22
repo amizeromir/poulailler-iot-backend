@@ -1,9 +1,12 @@
-// .devcontainer/devcontainer.json (Dans poulailler-iot-backend)
 {
-  "name": "IoT Multi-Repo Environment",
-  "image": "mcr.microsoft.com/devcontainers/universal:latest",
+  "name": "Environnement IoT Multi-Repo",
+  // Image de base universelle recommandée
+  "image": "mcr.microsoft.com/devcontainers/universal:latest", 
 
-  // Ce script s'exécute à la création du Codespace et installe les dépendances dans les dossiers clonés
+  // Définit explicitement l'utilisateur 'codespace' pour résoudre les problèmes de permission
+  "remoteUser": "codespace", 
+  
+  // Commandes exécutées automatiquement lors de la création du Codespace
   "onCreateCommand": [
     // 1. Installer les dépendances du Backend (dépôt principal)
     "npm install",
@@ -15,11 +18,30 @@
     "cd ../poulailler-iot-mobile && npm install"
   ],
 
-  // Définition des ports pour un accès facile
+  // Configuration des ports
   "portsAttributes": {
-    "5000": { "label": "API Backend (Node.js)", "onAutoForward": "notify" },
-    "8100": { "label": "Ionic/Frontend App", "onAutoForward": "openBrowser" }
+    "5000": { 
+      "label": "API Backend (Node.js)", 
+      "onAutoForward": "notify" 
+    },
+    "8100": { 
+      "label": "Ionic/Frontend App", 
+      "onAutoForward": "openBrowser" 
+    }
   },
 
-  "forwardPorts": [5000, 8100]
+  "forwardPorts": [5000, 8100],
+
+  // Extensions VS Code recommandées
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.node-js-for-typescript",
+        "ms-azuretools.vscode-docker",
+        "GitHub.vscode-github-actions"
+      ]
+    }
+  }
 }
