@@ -5,10 +5,17 @@ import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import sensorRoutes from "./routes/sensorRoutes.js";
-import { connectMQTT } from "./src/services/mqttService.js"; //  chemin direct
+import { connectMQTT } from "./src/services/mqttService.js";
 import usersRoutes from "./routes/users.js";
+import alertRoutes from "./routes/alertRoutes.js";
+import controlRoutes from "./routes/controlRoutes.js";
 
 dotenv.config();
+
+console.log("🔍 DEBUG EMAIL =", process.env.ALERT_EMAIL);
+console.log("🔍 DEBUG PASS LENGTH =", process.env.ALERT_EMAIL_PASSWORD?.length);
+console.log("🔍 DEBUG TO =", process.env.ALERT_EMAIL_TO);
+
 const app = express();
 
 /* ----------------------- 🔧 CORS dynamique universel ----------------------- */
@@ -16,11 +23,11 @@ app.use(
   cors({
     origin: (origin, callback) => {
       if (
-        !origin || // Postman ou script local
-        origin.includes("localhost") || // Dev local
+        !origin ||
+        origin.includes("localhost") ||
         origin.includes("127.0.0.1") ||
-        origin.endsWith(".app.github.dev") || // GitHub Codespaces
-        origin.includes("vercel.app") || // futur déploiement possible
+        origin.endsWith(".app.github.dev") ||
+        origin.includes("vercel.app") ||
         origin.includes("netlify.app")
       ) {
         callback(null, true);
@@ -49,8 +56,12 @@ app.get("/api/health", (req, res) => {
 });
 
 /* ----------------------- 🔌 Routes principales ----------------------- */
+// ⚠️ TOUTES LES ROUTES DOIVENT ÊTRE AVANT LE DÉMARRAGE DU SERVEUR ⚠️
 app.use("/api/auth", authRoutes);
 app.use("/api/sensors", sensorRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/alerts", alertRoutes);
+app.use("/api/control", controlRoutes); // ✅ VOTRE ROUTE DE CONTRÔLE
 
 /* ----------------------- ⚙️ Connexion MongoDB + lancement serveur ----------------------- */
 const PORT = process.env.PORT || 5000;
@@ -68,10 +79,13 @@ mongoose
       console.error("❌ Erreur lors du démarrage MQTT :", err);
     }
 
-    // Lancer serveur
+    // Lancer serveur - MAINTENANT les routes sont bien enregistrées
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Serveur backend prêt sur le port ${PORT}`);
+      console.log("📋 Routes disponibles:");
+      console.log("   - GET  /api/health");
+      console.log("   - POST /api/control 👈 VOTRE ROUTE DE CONTRÔLE");
+      console.log("   - ... autres routes");
     });
   })
   .catch((err) => console.error("❌ Erreur connexion MongoDB :", err));
-  app.use("/api/users", usersRoutes);

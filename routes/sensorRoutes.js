@@ -15,26 +15,13 @@ router.get("/", async (req, res) => {
   }
 });
 
-// 📊 Dernière valeur de chaque capteur (pour le dashboard)
+// 📊 Dernière valeur la plus récente (pour le dashboard résumé)
 router.get("/latest", async (req, res) => {
   try {
-    // Regroupe par deviceId et prend le plus récent timestamp
-    const latestData = await SensorData.aggregate([
-      {
-        $sort: { timestamp: -1 }
-      },
-      {
-        $group: {
-          _id: "$deviceId",
-          deviceId: { $first: "$deviceId" },
-          temperature: { $first: "$temperature" },
-          humidity: { $first: "$humidity" },
-          ammonia: { $first: "$ammonia" },
-          luminosity: { $first: "$luminosity" },
-          timestamp: { $first: "$timestamp" }
-        }
-      }
-    ]);
+    // Triez par le timestamp le plus récent (-1) et prenez seulement le premier document.
+    const latestData = await SensorData.find()
+      .sort({ timestamp: -1 })
+      .limit(1);
 
     res.json(latestData);
   } catch (error) {
